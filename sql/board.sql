@@ -1,25 +1,62 @@
-drop table board;
-drop sequence board_no_seq;
-
-CREATE TABLE board
-( 
-no           NUMBER(8),
-title        VARCHAR2(200) NOT NULL,
-content      VARCHAR2(4000) NOT NULL,
-member_no    NUMBER(8),
-member_name  VARCHAR2(30),
-view_cnt     NUMBER(10),
-reg_date     DATE NOT NULL
-) ;
+ALTER TABLE board
+	DROP
+		CONSTRAINT FK_users_TO_board
+		CASCADE;
 
 ALTER TABLE board
-ADD ( CONSTRAINT board_no_pk PRIMARY KEY ( no ) );
+	DROP
+		PRIMARY KEY
+		CASCADE
+		KEEP INDEX;
 
+DROP INDEX PK_board;
 
-CREATE SEQUENCE board_no_seq
- START WITH     1
- INCREMENT BY   1
- MAXVALUE       99999999
- NOCACHE
- NOCYCLE;
- 
+/* 게시판 */
+DROP TABLE board 
+	CASCADE CONSTRAINTS;
+
+/* 게시판 */
+CREATE TABLE board (
+	no NUMBER(10) NOT NULL, /* 번호 */
+	title varchar2(200), /* 글제목 */
+	contents varchar2(4000), /* 글내용 */
+	view_count NUMBER(10), /* 조회수 */
+	reg_date DATE, /* 등록일 */
+	users__no NUMBER(10) /* 사용자번호 */
+);
+
+COMMENT ON TABLE board IS '게시판';
+
+COMMENT ON COLUMN board.no IS '번호';
+
+COMMENT ON COLUMN board.title IS '글제목';
+
+COMMENT ON COLUMN board.contents IS '글내용';
+
+COMMENT ON COLUMN board.view_count IS '조회수';
+
+COMMENT ON COLUMN board.reg_date IS '등록일';
+
+COMMENT ON COLUMN board.users__no IS '사용자번호';
+
+CREATE UNIQUE INDEX PK_board
+	ON board (
+		no ASC
+	);
+
+ALTER TABLE board
+	ADD
+		CONSTRAINT PK_board
+		PRIMARY KEY (
+			no
+		);
+
+ALTER TABLE board
+	ADD
+		CONSTRAINT FK_users_TO_board
+		FOREIGN KEY (
+			users__no
+		)
+		REFERENCES users (
+			no
+		);
