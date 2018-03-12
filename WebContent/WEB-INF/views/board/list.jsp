@@ -31,7 +31,10 @@
 					<c:forEach items="${list }"	var="vo" varStatus="status">			
 						<tr>
 							<td>${totalCount - (currentPage - 1)*listSize - status.index }</td>
-							<td class="left">
+							<td class="left" style="text-align:left; padding-left:${20*vo.depth }px">
+								<c:if test="${vo.depth > 0 }">
+									<img src="/mysite/assets/images/reply.png"/>
+								</c:if>
 								<a href="/mysite/board?a=view&no=${vo.no }">${vo.title }</a>
 							</td>
 							<td>${vo.userName }</td>

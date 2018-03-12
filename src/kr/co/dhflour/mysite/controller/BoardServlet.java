@@ -85,7 +85,68 @@ public class BoardServlet extends HttpServlet {
 			forward( request, response );
 			
 		} else if( "replyform".equals( actionName ) ) {
+			// is auth?
+			HttpSession session = request.getSession();
+			if( session == null ) {
+				response.sendRedirect( "/mysite/board"  );
+				return;
+			}
+			UserVo authUser = (UserVo)session.getAttribute( "authUser" );
+			if( authUser == null ) {
+				response.sendRedirect( "/mysite/board"  );
+				return;
+			}
+			
+			long no = Long.parseLong( request.getParameter( "no" ) );
+			BoardDao dao = new BoardDao();
+			BoardVo boardVo = dao.get( no );
+			
+			request.setAttribute( "boardVo", boardVo );
+			
+			request.
+			getRequestDispatcher( "/WEB-INF/views/board/reply.jsp" ).
+			forward( request, response );
+			
+		} else if( "reply".equals( actionName ) ) {
+			// is auth?
+			HttpSession session = request.getSession();
+			if( session == null ) {
+				response.sendRedirect( "/mysite/board"  );
+				return;
+			}
+			UserVo authUser = (UserVo)session.getAttribute( "authUser" );
+			if( authUser == null ) {
+				response.sendRedirect( "/mysite/board"  );
+				return;
+			}
+			
+			String title = request.getParameter( "title" );
+			String contents = request.getParameter( "content" );
+			int groupNo = Integer.parseInt( request.getParameter( "gno" ) );
+			int orderNo = Integer.parseInt( request.getParameter( "ono" ) );
+			int depth = Integer.parseInt( request.getParameter( "d" ) );
+
+			BoardDao dao = new BoardDao();
+			BoardVo vo = new BoardVo();
 		
+			vo.setTitle(title);
+			vo.setContents(contents);
+			vo.setUserNo( authUser.getNo() );
+			
+			// 같은 그룹의 orderNo 보다 큰 글 들의 order_no 1씩 증가
+			orderNo = orderNo + 1;
+			depth = depth + 1;
+			
+			dao.increaseGroupOrder( groupNo, orderNo );
+			
+			vo.setGroupNo( groupNo );
+			vo.setOrderNo( orderNo );
+			vo.setDepth( depth );
+			
+			dao.insert2(vo);
+			
+			response.sendRedirect( "/mysite/board" );
+			
 		} else if( "delete".equals( actionName ) ) {
 			// is auth?
 			HttpSession session = request.getSession();

@@ -12,6 +12,74 @@ import kr.co.dhflour.mysite.vo.BoardVo;
 
 public class BoardDao {
 	
+	public void increaseGroupOrder( Integer groupNo, Integer orderNo ){
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		
+		try {
+			conn = getConnection();
+			
+			String sql = "update board set order_no = order_no + 1 where group_no = ? and order_no >= ?";
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setInt(1, groupNo );
+			pstmt.setInt(2, orderNo );
+			
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println( "error:" + e );
+		} finally {
+			try {
+				if( pstmt != null ) {
+					pstmt.close();
+				}
+				if( conn != null ) {
+					conn.close();
+				}
+			} catch ( SQLException e ) {
+				System.out.println( "error:" + e );
+			}  
+		}
+	}
+	
+	public void insert2( BoardVo vo ) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		try {
+			conn = getConnection();
+		
+			/* 답글 등록 */
+			String sql = 
+					" insert" +
+					"   into board" +
+					" values( seq_board.nextval, ?, ?, 0, sysdate, ?, ?, ?, ? )"; 
+				pstmt = conn.prepareStatement(sql);
+				
+				pstmt.setString( 1, vo.getTitle() );
+				pstmt.setString( 2, vo.getContents() );
+				pstmt.setInt( 3, vo.getGroupNo() );
+				pstmt.setInt( 4, vo.getOrderNo() );
+				pstmt.setInt( 5, vo.getDepth() );
+				pstmt.setLong( 6, vo.getUserNo() );
+
+				pstmt.executeUpdate();
+			
+		} catch (SQLException e) {
+			System.out.println( "error:" + e );
+		} finally {
+			try {
+				if( pstmt != null ) {
+					pstmt.close();
+				}
+				if( conn != null ) {
+					conn.close();
+				}
+			} catch ( SQLException e ) {
+				System.out.println( "error:" + e );
+			}  
+		}
+	}
+	
 	public void insert( BoardVo vo ) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
@@ -21,7 +89,7 @@ public class BoardDao {
 			String sql = 
 				" insert" +
 				"   into board" +
-				" values( seq_board.nextval, ?, ?, 0, sysdate, 0, 0, 0, ?)";
+				" values( seq_board.nextval, ?, ?, 0, sysdate, (select nvl(max(group_no), 0) + 1 from board), 1, 0, ? )";
 			pstmt = conn.prepareStatement(sql);
 				
 			pstmt.setString( 1, vo.getTitle() );
@@ -90,7 +158,7 @@ public class BoardDao {
 				"   select a.no, a.title, a.hit, to_char(a.reg_date, 'yyyy-mm-dd hh24:mi:ss') as reg_date, a.depth, b.name, a.users_no" +
 				"     from board a, users b" +
 				"    where a.users_no = b.no" +
-	            " order by reg_date desc";
+	            " order by group_no desc, order_no asc";
 			pstmt = conn.prepareStatement(sql);
 
 			rs = pstmt.executeQuery();
