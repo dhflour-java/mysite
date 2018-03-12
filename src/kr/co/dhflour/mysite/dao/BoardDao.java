@@ -85,6 +85,7 @@ public class BoardDao {
 		PreparedStatement pstmt = null;
 		try {
 			conn = getConnection();
+			
 			/* 새글 등록 */
 			String sql = 
 				" insert" +

@@ -21,7 +21,7 @@
 					<input type="hidden" name="d" value="${boardVo.depth }">
 					<table class="tbl-ex">
 						<tr>
-							<th colspan="2">글쓰기</th>
+							<th colspan="2">답글달기</th>
 						</tr>
 						<tr>
 							<td class="label">제목</td>
